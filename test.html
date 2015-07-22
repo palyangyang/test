@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>js俄罗斯方块</title>
+
+<style type="text/css">
+
+#board tr td{
+	width:20px;
+	height:20px;
+	}
+#preBoard tr td{
+	width:20px;
+	height:20px;
+	}
+</style>
+
+<script type="text/javascript">
+	//表示页面中的table，这个table就是将要显示游戏的主面板
+	var tb1;
+	//预览窗口
+	var preTb1;
+	//游戏状态 0：未开始；1运行；2终止
+	var status = 0;
+	//定时器，定时器内将做moveDown操作
+	var timer;
+	//分数
+	var voard = new Array(18);
+	//board是一个18*10的数组，也和页面的table对应
+	//用来标注那些方格已经被占据，初始时都为0，如果被占据则为1
+	for(var i = 0;i < 18; i++){
+		board[i] = newArray(10);
+		}
+	for(var i = 0;i < 18;i++){
+		for(var j=0;j<10;j++){
+			board[i][j] = 0;
+			}
+		}
+		
+	//当前活动得方块，它可以左右下移动，变形，当它触底后，将会更新board
+	var activeBlock
+	//下一个图形
+	var nextBlock
+	//下一个图形预览
+	var previewBlock;
+	//生产方块形状，有7中基本形状
+	function genrateBlock(){
+		var block = new Array(40);
+		var t = (Math.floor(Math.random()*20)+1)%7;
+		
+		switch(t){
+			case 0:{
+				block[0] = {x:0,y:4};
+				block[1] = {x:1,y:4};
+				block[2] = {x:0,y:5};
+				block[3] = {x:1,y:5};
+				break;
+				}
+			case 1:{
+				block[0] = {x:0,y:3};
+				block[1] = {x:0,y:4};
+				block[2] = {x:0,y:5};
+				block[3] = {x:0,y:6};
+				break;
+				}
+			case 2:{
+				block[0] = {x:0,y:4};
+				block[1] = {x:1,y:4};
+				block[2] = {x:1,y:5};
+				block[3] = {x:2,y:5};
+				break;
+				}
+			case 3:{
+				block[0] = {x:0,y:4};
+				block[1] = {x:1,y:4};
+				block[2] = {x:1,y:5};
+				block[3] = {x:2,y:5};
+				break;
+				}
+			case 4:{
+				block[0] = {x:0,y:4};
+				block[1] = {x:1,y:4};
+				block[2] = {x:1,y:5};
+				block[3] = {x:1,y:6};
+				break;
+				}
+			case 5:{
+				block[0] = {x:0,y:4};
+				block[1] = {x:1,y:4};
+				block[2] = {x:2,y:5};
+				block[3] = {x:3,y:5};
+				break;
+				}
+			case 6:{
+				block[0] = {x:0,y:5};
+				block[1] = {x:1,y:4};
+				block[2] = {x:1,y:5};
+				block[3] = {x:1,y:6};
+				break;
+				}
+			}
+			
+			return block;
+		}
+	
+</script>
+
+</head>
+
+<body>
+<input type="button" value="begin" onclick="begin()"/>
+Score: <span id="score">0</span>
+<div id="main">
+<table id="board" cellpadding="0" cellspacing="0" border="1" style="border-collapse:collapse">
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+</div>
+
+<div style="float:left; width:5px;">
+</div>
+
+<div id="pre">
+	<table id="preBoard" border="1" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </table>
+
+</div>
+
+</body>
+</html>
